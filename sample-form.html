@@ -5,87 +5,73 @@ document.addEventListener('DOMContentLoaded', function() {
 
 const FORM_CONFIG = {
   branding: {
-    primary: '#EDB42A',
-    primaryHover: '#d9a526',
-    btnText: '#00385F',
-    text: '#ffffff',
-    textMuted: 'rgba(255, 255, 255, 0.7)',
-    border: 'rgba(255, 255, 255, 0.2)',
-    bg: 'rgba(255, 255, 255, 0.05)',
+    primary: '#2189FF',
+    primaryHover: '#1a75e8',
+    btnText: '#111827',
+    text: '#111827',
+    textMuted: '#6B7280',
+    border: '#D1D5DB',
+    bg: '#ffffff',
   },
 
   steps: [
     {
       number: 1,
-      label: 'Projekt',
-      title: 'Um welche Art von Projekt handelt es sich?',
-      description: 'So können wir direkt den richtigen Ansprechpartner für Sie bereitstellen.',
+      label: 'Stelle',
+      title: 'Für welche Stelle bewirbst Du Dich?',
+      description: '',
       type: 'options',
-      fieldId: 'projekt',
+      fieldId: 'stelle',
       layout: 'grid-2',
       options: [
-        'Erd- und Tiefbauarbeiten',
-        'Leitungstiefbau',
-        'Grabenlose Verfahren (HDD)',
-        'Asphaltarbeiten',
-        'Glasfaserausbau (LWL)',
-        'Noch nicht sicher'
+        'Monteur (m/w/d)',
+        'Initiativbewerbung'
       ]
     },
     {
       number: 2,
-      label: 'Funktion',
-      title: 'In welcher Funktion kontaktieren Sie uns?',
-      description: 'Damit wir Ihre Anfrage optimal einordnen können.',
+      label: 'Erfahrung',
+      title: 'Wie viele Jahre Berufserfahrung hast du bereits?',
+      description: '',
       type: 'options',
-      fieldId: 'funktion',
+      fieldId: 'erfahrung',
       layout: 'grid-2',
       options: [
-        'Kommune / Öffentlicher Auftraggeber',
-        'Stadtwerk / Versorger',
-        'Generalunternehmer',
-        'Bauträger / Projektentwickler',
-        'Sonstiges'
+        'Berufseinsteiger',
+        '1-2 Jahre',
+        '3-5 Jahre',
+        'Mehr als 5 Jahre'
       ]
     },
     {
       number: 3,
-      label: 'Zeitrahmen',
-      title: 'Wann soll das Projekt umgesetzt werden?',
-      description: 'So können wir unsere Kapazitäten entsprechend planen.',
-      type: 'options',
-      fieldId: 'zeitrahmen',
-      layout: 'grid-1',
-      options: [
-        'So schnell wie möglich',
-        'In den nächsten 1-3 Monaten',
-        'In 3-6 Monaten',
-        'Langfristige Planung (6+ Monate)'
+      label: 'Qualifikation',
+      title: 'Welche Qualifikation bringst du mit?',
+      description: 'Dieser Schritt ist optional, aber hilft uns weiter.',
+      type: 'fields',
+      fields: [
+        {
+          id: 'qualifikation',
+          type: 'textarea',
+          label: 'Deine Qualifikation',
+          placeholder: 'z.B. abgeschlossene Ausbildung als Elektroniker, Meistertitel, spezielle Zertifikate, relevante Weiterbildungen...',
+          required: false,
+          rows: 5
+        }
       ]
     },
     {
       number: 4,
       label: 'Kontakt',
-      title: 'Wie können wir Sie erreichen?',
-      description: 'Hinterlassen Sie Ihre Kontaktdaten – wir melden uns zeitnah bei Ihnen.',
+      title: 'Du scheinst gut in unser Team zu passen!',
+      description: 'Wir würden dich gerne bei einem kurzen Telefonat besser kennenlernen. Bitte trage deine Kontaktdaten im Formular ein, damit wir dich erreichen können.',
       type: 'fields',
-      stars: {
-        show: true,
-        text: 'Über 100+ erfolgreich abgeschlossene Projekte'
-      },
       fields: [
         {
           id: 'name',
           type: 'text',
           label: 'Vor- und Nachname',
           placeholder: 'Max Mustermann',
-          required: true
-        },
-        {
-          id: 'unternehmen',
-          type: 'text',
-          label: 'Unternehmen / Organisation',
-          placeholder: 'Muster GmbH',
           required: true
         },
         {
@@ -105,7 +91,7 @@ const FORM_CONFIG = {
         {
           id: 'erreichbarkeit',
           type: 'time_picker',
-          label: 'Wann sind Sie am besten erreichbar?',
+          label: 'Wann bist du am besten erreichbar?',
           required: true,
           times: ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00']
         }
@@ -118,8 +104,8 @@ const FORM_CONFIG = {
   ],
 
   success: {
-    title: 'Vielen Dank für Ihre Anfrage!',
-    description: 'Wir haben Ihre Daten erhalten und melden uns schnellstmöglich bei Ihnen. Wir freuen uns auf die Zusammenarbeit!'
+    title: 'Vielen Dank für deine Bewerbung!',
+    description: 'Wir haben deine Daten erhalten und melden uns schnellstmöglich bei dir. Wir freuen uns darauf, dich kennenzulernen!'
   },
 
   errors: {
@@ -155,12 +141,12 @@ const FORM_CONFIG = {
       .db-timeline { display: flex; align-items: flex-start; justify-content: space-between; }
       .db-timeline.hide { display: none; }
       .db-timeline-step { display: flex; flex-direction: column; align-items: center; position: relative; flex: 1; }
-      .db-timeline-step:not(:last-child)::after { content: ''; position: absolute; top: 16px; left: calc(50% + 20px); width: calc(100% - 40px); height: 2px; background: var(--db-border); transition: background 0.3s ease; }
+      .db-timeline-step:not(:last-child)::after { content: ''; position: absolute; top: 16px; left: calc(50% + 20px); width: calc(100% - 40px); height: 2px; background: #E2E7F0; transition: background 0.3s ease; }
       .db-timeline-step.completed:not(:last-child)::after { background: var(--db-primary); }
-      .db-timeline-circle { width: 32px; height: 32px; border-radius: 0; background: transparent; border: 2px solid var(--db-border); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; color: var(--db-text-muted); transition: all 0.3s ease; position: relative; z-index: 1; }
-      .db-timeline-step.active .db-timeline-circle { background: var(--db-primary); border-color: var(--db-primary); color: var(--db-btn-text); box-shadow: 0 0 0 4px rgba(237, 180, 42, 0.25); }
-      .db-timeline-step.completed .db-timeline-circle { background: var(--db-primary); border-color: var(--db-primary); color: var(--db-btn-text); }
-      .db-timeline-label { font-size: 12px; color: var(--db-text-muted); margin-top: 8px; font-weight: 500; transition: color 0.3s ease; }
+      .db-timeline-circle { width: 32px; height: 32px; border-radius: 9999px; background: #E2E7F0; border: none; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; color: #64748B; transition: all 0.3s ease; position: relative; z-index: 1; }
+      .db-timeline-step.active .db-timeline-circle { background: var(--db-primary); color: #ffffff; box-shadow: 0 0 0 4px rgba(33, 137, 255, 0.25); }
+      .db-timeline-step.completed .db-timeline-circle { background: var(--db-primary); color: #ffffff; }
+      .db-timeline-label { font-size: 12px; color: #64748B; margin-top: 8px; font-weight: 500; transition: color 0.3s ease; }
       .db-timeline-step.active .db-timeline-label { color: var(--db-primary); }
       .db-timeline-step.completed .db-timeline-label { color: var(--db-text); }
       .db-wrapper { padding: 20px 0 0 0; }
@@ -170,58 +156,60 @@ const FORM_CONFIG = {
       .db-title { font-size: 24px; font-weight: 700; color: var(--db-text); margin: 0 0 10px 0; line-height: 1.3; text-align: center; }
       .db-para { font-size: 15px; color: var(--db-text-muted); margin: 0 0 28px 0; line-height: 1.6; text-align: center; }
       .db-options { display: grid; gap: 12px; }
-      .db-options.grid-2 { grid-template-columns: repeat(2, 1fr); }
+      .db-options.grid-2 { grid-template-columns: 1fr; }
       .db-options.grid-1 { grid-template-columns: 1fr; }
-      @media (max-width: 540px) { .db-options.grid-2 { grid-template-columns: 1fr; } }
-      .db-option { display: flex; align-items: center; justify-content: center; padding: 16px 20px; background: var(--db-bg); border: 2px solid var(--db-border); border-radius: 0; font-size: 15px; font-weight: 500; color: var(--db-text); cursor: pointer; transition: all 0.2s ease; text-align: center; }
-      .db-option:hover { border-color: var(--db-primary); background: rgba(237, 180, 42, 0.1); }
-      .db-option.selected { border-color: var(--db-primary); background: var(--db-primary); color: var(--db-btn-text); }
+      .db-option { display: flex; align-items: center; justify-content: center; padding: 16px 20px; background: #F3F4F6; border: 2px solid transparent; border-radius: 9999px; font-size: 15px; font-weight: 500; color: #111827; cursor: pointer; transition: all 0.2s ease; text-align: center; }
+      .db-option:hover { border-color: var(--db-primary); background: var(--db-primary); color: #ffffff; }
+      .db-option.selected { border-color: var(--db-primary); background: var(--db-primary); color: #ffffff; }
       .db-stars-wrap { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px; }
       .db-stars { display: flex; gap: 2px; }
-      .db-star { width: 16px; height: 16px; color: var(--db-primary); }
+      .db-star { width: 16px; height: 16px; color: #FBBF24; }
       .db-stars-text { font-size: 13px; color: var(--db-text-muted); font-weight: 500; }
       .db-fields { display: flex; flex-direction: column; gap: 20px; }
       .db-field { display: flex; flex-direction: column; gap: 6px; }
       .db-label { font-size: 14px; font-weight: 600; color: var(--db-text-muted); }
       .db-label .required { color: var(--db-primary); }
-      .db-input { padding: 14px 16px; border: 2px solid var(--db-border); border-radius: 0; font-size: 15px; font-family: inherit; color: var(--db-text); background: var(--db-bg); transition: border-color 0.2s ease, box-shadow 0.2s ease; }
-      .db-input:focus { outline: none; border-color: var(--db-primary); box-shadow: 0 0 0 4px rgba(237, 180, 42, 0.15); }
-      .db-input::placeholder { color: rgba(255, 255, 255, 0.4); }
+      .db-input { padding: 14px 16px; border: 2px solid var(--db-border); border-radius: 9999px; font-size: 15px; font-family: inherit; color: var(--db-text); background: #ffffff; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+      .db-input:focus { outline: none; border-color: var(--db-primary); box-shadow: 0 0 0 4px rgba(33, 137, 255, 0.15); }
+      .db-input::placeholder { color: #9CA3AF; }
+      .db-textarea { padding: 14px 16px; border: 2px solid var(--db-border); border-radius: 16px; font-size: 15px; font-family: inherit; color: var(--db-text); background: #ffffff; transition: border-color 0.2s ease, box-shadow 0.2s ease; resize: vertical; min-height: 120px; }
+      .db-textarea:focus { outline: none; border-color: var(--db-primary); box-shadow: 0 0 0 4px rgba(33, 137, 255, 0.15); }
+      .db-textarea::placeholder { color: #9CA3AF; }
       .db-time-picker { position: relative; }
-      .db-time-display { display: flex; align-items: center; gap: 8px; padding: 14px 16px; border: 2px solid var(--db-border); border-radius: 0; background: var(--db-bg); cursor: pointer; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+      .db-time-display { display: flex; align-items: center; gap: 8px; padding: 14px 16px; border: 2px solid var(--db-border); border-radius: 9999px; background: #ffffff; cursor: pointer; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
       .db-time-display:hover, .db-time-display.open { border-color: var(--db-primary); }
-      .db-time-display.open { box-shadow: 0 0 0 4px rgba(237, 180, 42, 0.15); }
+      .db-time-display.open { box-shadow: 0 0 0 4px rgba(33, 137, 255, 0.15); }
       .db-time-icon { width: 20px; height: 20px; color: var(--db-text-muted); }
       .db-time-value { flex: 1; font-size: 15px; color: var(--db-text); }
-      .db-time-value.placeholder { color: rgba(255, 255, 255, 0.4); }
-      .db-time-dropdown { position: absolute; top: calc(100% + 8px); left: 0; right: 0; background: #000000; border: 2px solid var(--db-border); border-radius: 0; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5); padding: 12px; display: none; z-index: 100; }
+      .db-time-value.placeholder { color: #9CA3AF; }
+      .db-time-dropdown { position: absolute; top: calc(100% + 8px); left: 0; right: 0; background: #ffffff; border: 2px solid var(--db-border); border-radius: 16px; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15); padding: 12px; display: none; z-index: 100; }
       .db-time-dropdown.open { display: block; animation: dbDropdown 0.2s ease; }
       @keyframes dbDropdown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
       .db-time-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
-      .db-time-option { padding: 10px 8px; text-align: center; font-size: 14px; font-weight: 500; color: var(--db-text); background: var(--db-bg); border: none; border-radius: 0; cursor: pointer; transition: all 0.15s ease; }
-      .db-time-option:hover { background: rgba(237, 180, 42, 0.2); color: var(--db-primary); }
-      .db-time-option.selected { background: var(--db-primary); color: var(--db-btn-text); }
+      .db-time-option { padding: 10px 8px; text-align: center; font-size: 14px; font-weight: 500; color: var(--db-text); background: #F3F4F6; border: none; border-radius: 9999px; cursor: pointer; transition: all 0.15s ease; }
+      .db-time-option:hover { background: var(--db-primary); color: #ffffff; }
+      .db-time-option.selected { background: var(--db-primary); color: #ffffff; }
       .db-checkbox-wrap { display: flex; align-items: flex-start; gap: 12px; margin-top: 8px; }
-      .db-checkbox { width: 22px; height: 22px; min-width: 22px; border: 2px solid var(--db-border); border-radius: 0; background: var(--db-bg); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; margin-top: 2px; }
+      .db-checkbox { width: 22px; height: 22px; min-width: 22px; border: 2px solid var(--db-border); border-radius: 9999px; background: #ffffff; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; margin-top: 2px; }
       .db-checkbox:hover { border-color: var(--db-primary); }
       .db-checkbox.checked { background: var(--db-primary); border-color: var(--db-primary); }
-      .db-checkbox svg { width: 14px; height: 14px; color: var(--db-btn-text); opacity: 0; transform: scale(0.5); transition: all 0.15s ease; }
+      .db-checkbox svg { width: 14px; height: 14px; color: #ffffff; opacity: 0; transform: scale(0.5); transition: all 0.15s ease; }
       .db-checkbox.checked svg { opacity: 1; transform: scale(1); }
       .db-checkbox-label { font-size: 14px; color: var(--db-text-muted); line-height: 1.5; }
       .db-checkbox-label a { color: var(--db-primary); text-decoration: none; }
       .db-checkbox-label a:hover { text-decoration: underline; }
-      .db-nav { display: flex; gap: 12px; margin-top: 32px; }
-      .db-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 16px 24px; border-radius: 0; font-size: 15px; font-weight: 600; font-family: inherit; cursor: pointer; transition: all 0.2s ease; border: none; }
-      .db-btn-submit { background: var(--db-primary); color: var(--db-btn-text); }
-      .db-btn-submit:hover { background: var(--db-primary-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(237, 180, 42, 0.4); }
+      .db-nav { display: flex; flex-direction: column; gap: 12px; margin-top: 32px; }
+      .db-btn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 16px 24px; border-radius: 9999px; font-size: 15px; font-weight: 600; font-family: inherit; cursor: pointer; transition: all 0.2s ease; border: none; }
+      .db-btn-submit { background: var(--db-primary); color: #ffffff; }
+      .db-btn-submit:hover { background: var(--db-primary-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(33, 137, 255, 0.4); }
       .db-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
-      .db-spinner { width: 20px; height: 20px; border: 2px solid rgba(0, 56, 95, 0.3); border-top-color: var(--db-btn-text); border-radius: 50%; animation: dbSpin 0.8s linear infinite; }
+      .db-spinner { width: 20px; height: 20px; border: 2px solid rgba(255, 255, 255, 0.3); border-top-color: #ffffff; border-radius: 50%; animation: dbSpin 0.8s linear infinite; }
       @keyframes dbSpin { to { transform: rotate(360deg); } }
       .db-success { text-align: center; padding: 20px 0; }
       .db-success-icon { width: 72px; height: 72px; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; animation: dbPop 0.4s ease; }
       @keyframes dbPop { 0% { transform: scale(0); } 70% { transform: scale(1.1); } 100% { transform: scale(1); } }
       .db-success-icon svg { width: 64px; height: 64px; color: var(--db-primary); }
-      .db-error { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; padding: 12px 16px; border-radius: 0; font-size: 14px; margin-top: 16px; display: none; }
+      .db-error { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #DC2626; padding: 12px 16px; border-radius: 9999px; font-size: 14px; margin-top: 16px; display: none; }
       .db-error.show { display: block; }
       @media (max-width: 768px) {
         .db-timeline-label { font-size: 11px; }
@@ -299,6 +287,15 @@ const FORM_CONFIG = {
         `;
       }
 
+      if (field.type === 'textarea') {
+        return `
+          <div class="db-field">
+            <label class="db-label">${field.label} ${field.required ? '<span class="required">*</span>' : ''}</label>
+            <textarea class="db-textarea" data-field-id="${field.id}" placeholder="${field.placeholder || ''}" ${field.required ? 'required' : ''} rows="${field.rows || 4}"></textarea>
+          </div>
+        `;
+      }
+
       return `
         <div class="db-field">
           <label class="db-label">${field.label} ${field.required ? '<span class="required">*</span>' : ''}</label>
@@ -318,6 +315,18 @@ const FORM_CONFIG = {
       </div>
     ` : '';
 
+    const isLastStep = step.number === steps.length;
+    const navHTML = isLastStep ? `
+      <div class="db-error" id="db-error">${errors.requiredFields}</div>
+      <div class="db-nav">
+        <button type="button" class="db-btn db-btn-submit" id="db-submit">Bewerbung absenden</button>
+      </div>
+    ` : `
+      <div class="db-nav">
+        <button type="button" class="db-btn db-btn-submit db-next-btn" data-next-step="${step.number + 1}">Weiter</button>
+      </div>
+    `;
+
     return `
       <div class="db-step" data-step="${step.number}">
         ${starsHTML}
@@ -325,10 +334,7 @@ const FORM_CONFIG = {
         <p class="db-para">${step.description}</p>
         <div class="db-fields">${fieldsHTML}</div>
         ${privacyHTML}
-        <div class="db-error" id="db-error">${errors.requiredFields}</div>
-        <div class="db-nav">
-          <button type="button" class="db-btn db-btn-submit" id="db-submit">Anfrage unverbindlich absenden</button>
-        </div>
+        ${navHTML}
       </div>
     `;
   };
@@ -452,6 +458,13 @@ const FORM_CONFIG = {
     });
   });
 
+  wrapper.querySelectorAll('.db-next-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const nextStep = parseInt(this.dataset.nextStep);
+      showStep(nextStep);
+    });
+  });
+
   const checkbox = wrapper.querySelector('#db-privacy-checkbox');
   if (checkbox) {
     checkbox.addEventListener('click', function() {
@@ -465,32 +478,38 @@ const FORM_CONFIG = {
 
   if (submitBtn) {
     submitBtn.addEventListener('click', async function() {
-      const fieldsStep = steps.find(s => s.type === 'fields');
+      const fieldsSteps = steps.filter(s => s.type === 'fields');
 
       const hpField = document.getElementById('db-hp-field');
       if (hpField) {
         formData._hp_field = hpField.value;
       }
 
-      fieldsStep.fields.forEach(field => {
-        if (field.type === 'time_picker') {
-          if (!formData[field.id]) {
-            formData[field.id] = '';
+      let allRequiredFields = [];
+      fieldsSteps.forEach(fieldsStep => {
+        fieldsStep.fields.forEach(field => {
+          if (field.type === 'time_picker') {
+            if (!formData[field.id]) {
+              formData[field.id] = '';
+            }
+          } else {
+            const input = wrapper.querySelector(`[data-field-id="${field.id}"]`);
+            if (input) {
+              formData[field.id] = input.value.trim();
+            }
           }
-        } else {
-          const input = wrapper.querySelector(`[data-field-id="${field.id}"]`);
-          if (input) {
-            formData[field.id] = input.value.trim();
+          if (field.required) {
+            allRequiredFields.push(field);
           }
-        }
+        });
       });
 
-      const allFilled = fieldsStep.fields.every(field => {
-        if (!field.required) return true;
+      const allFilled = allRequiredFields.every(field => {
         return formData[field.id] && formData[field.id] !== '';
       });
 
-      if (fieldsStep.privacy?.required && !formData.datenschutz) {
+      const lastFieldsStep = fieldsSteps[fieldsSteps.length - 1];
+      if (lastFieldsStep.privacy?.required && !formData.datenschutz) {
         errorMsg.classList.add('show');
         return;
       }
@@ -531,7 +550,7 @@ const FORM_CONFIG = {
         errorMsg.textContent = error.message || errors.submission;
         errorMsg.classList.add('show');
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Anfrage unverbindlich absenden';
+        submitBtn.textContent = 'Bewerbung absenden';
       }
     });
   }

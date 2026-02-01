@@ -529,9 +529,10 @@ class Custom_Form_Submissions {
         global $wpdb;
 
         if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])) {
+            check_admin_referer('delete-form_' . absint($_GET['id']));
             $id = absint($_GET['id']);
             $wpdb->delete($this->forms_table, ['id' => $id]);
-            wp_redirect(admin_url('admin.php?page=custom-forms'));
+            wp_safe_redirect(admin_url('admin.php?page=custom-forms'));
             exit;
         }
 
@@ -628,18 +629,13 @@ class Custom_Form_Submissions {
     private function render_form_edit_page($form_id = null) {
         global $wpdb;
 
-        $form = null;
-        if ($form_id) {
-            $form = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$this->forms_table} WHERE id = %d", $form_id));
-        }
-
         if (isset($_POST['cfs_save_form'])) {
             check_admin_referer('cfs_form_edit');
 
             $title = sanitize_text_field($_POST['form_title']);
             $code = wp_unslash($_POST['form_code']);
 
-            if ($form_id && $form) {
+            if ($form_id) {
                 $wpdb->update(
                     $this->forms_table,
                     [
@@ -649,7 +645,7 @@ class Custom_Form_Submissions {
                     ],
                     ['id' => $form_id]
                 );
-                wp_redirect(admin_url('admin.php?page=custom-forms&updated=1'));
+                wp_safe_redirect(admin_url('admin.php?page=custom-forms&updated=1'));
                 exit;
             } else {
                 $wpdb->insert($this->forms_table, [
@@ -658,9 +654,14 @@ class Custom_Form_Submissions {
                     'created_at' => current_time('mysql'),
                     'updated_at' => current_time('mysql')
                 ]);
-                wp_redirect(admin_url('admin.php?page=custom-forms&created=1'));
+                wp_safe_redirect(admin_url('admin.php?page=custom-forms&created=1'));
                 exit;
             }
+        }
+
+        $form = null;
+        if ($form_id) {
+            $form = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$this->forms_table} WHERE id = %d", $form_id));
         }
 
         $sample_form_content = file_get_contents(plugin_dir_path(__FILE__) . 'sample-form.html');
