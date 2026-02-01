@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HD Custom Forms
  * Description: Handles custom HTML form submissions with admin dashboard
- * Version: 3.0.0
+ * Version: 3.0.1
  * Author: Henrich Digital
  * Requires at least: 5.8
  * Requires PHP: 7.4
