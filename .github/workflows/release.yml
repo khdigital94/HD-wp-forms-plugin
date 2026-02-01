@@ -1,0 +1,73 @@
+name: Create Release on Push
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Get version from plugin file
+        id: get_version
+        run: |
+          VERSION=$(grep "Version:" custom-form-submissions.php | awk '{print $3}')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=v$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Check if tag exists
+        id: check_tag
+        run: |
+          if git rev-parse "v${{ steps.get_version.outputs.version }}" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create ZIP
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          zip -r hd-custom-forms-v${{ steps.get_version.outputs.version }}.zip \
+            custom-form-submissions.php \
+            uninstall.php \
+            sample-form.html \
+            career-form.html \
+            plugin-update-checker \
+            README.md \
+            -x "*.git*" "*.DS_Store"
+
+      - name: Create Release
+        if: steps.check_tag.outputs.exists == 'false'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.get_version.outputs.tag }}
+          name: Version ${{ steps.get_version.outputs.version }}
+          body: |
+            ## HD Custom Forms v${{ steps.get_version.outputs.version }}
+
+            Automatisch generiertes Release.
+
+            ### Installation
+            1. ZIP-Datei herunterladen
+            2. In WordPress unter Plugins → Installieren → Plugin hochladen
+            3. Aktivieren
+
+            ### Update
+            Bei bereits installiertem Plugin einfach auf "Jetzt aktualisieren" klicken.
+          files: hd-custom-forms-v${{ steps.get_version.outputs.version }}.zip
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Skip release (already exists)
+        if: steps.check_tag.outputs.exists == 'true'
+        run: |
+          echo "Release v${{ steps.get_version.outputs.version }} already exists. Skipping."

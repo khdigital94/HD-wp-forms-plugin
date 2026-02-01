@@ -1,0 +1,541 @@
+<div class="db-container"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+const FORM_CONFIG = {
+  branding: {
+    primary: '#EDB42A',
+    primaryHover: '#d9a526',
+    btnText: '#00385F',
+    text: '#ffffff',
+    textMuted: 'rgba(255, 255, 255, 0.7)',
+    border: 'rgba(255, 255, 255, 0.2)',
+    bg: 'rgba(255, 255, 255, 0.05)',
+  },
+
+  steps: [
+    {
+      number: 1,
+      label: 'Projekt',
+      title: 'Um welche Art von Projekt handelt es sich?',
+      description: 'So können wir direkt den richtigen Ansprechpartner für Sie bereitstellen.',
+      type: 'options',
+      fieldId: 'projekt',
+      layout: 'grid-2',
+      options: [
+        'Erd- und Tiefbauarbeiten',
+        'Leitungstiefbau',
+        'Grabenlose Verfahren (HDD)',
+        'Asphaltarbeiten',
+        'Glasfaserausbau (LWL)',
+        'Noch nicht sicher'
+      ]
+    },
+    {
+      number: 2,
+      label: 'Funktion',
+      title: 'In welcher Funktion kontaktieren Sie uns?',
+      description: 'Damit wir Ihre Anfrage optimal einordnen können.',
+      type: 'options',
+      fieldId: 'funktion',
+      layout: 'grid-2',
+      options: [
+        'Kommune / Öffentlicher Auftraggeber',
+        'Stadtwerk / Versorger',
+        'Generalunternehmer',
+        'Bauträger / Projektentwickler',
+        'Sonstiges'
+      ]
+    },
+    {
+      number: 3,
+      label: 'Zeitrahmen',
+      title: 'Wann soll das Projekt umgesetzt werden?',
+      description: 'So können wir unsere Kapazitäten entsprechend planen.',
+      type: 'options',
+      fieldId: 'zeitrahmen',
+      layout: 'grid-1',
+      options: [
+        'So schnell wie möglich',
+        'In den nächsten 1-3 Monaten',
+        'In 3-6 Monaten',
+        'Langfristige Planung (6+ Monate)'
+      ]
+    },
+    {
+      number: 4,
+      label: 'Kontakt',
+      title: 'Wie können wir Sie erreichen?',
+      description: 'Hinterlassen Sie Ihre Kontaktdaten – wir melden uns zeitnah bei Ihnen.',
+      type: 'fields',
+      stars: {
+        show: true,
+        text: 'Über 100+ erfolgreich abgeschlossene Projekte'
+      },
+      fields: [
+        {
+          id: 'name',
+          type: 'text',
+          label: 'Vor- und Nachname',
+          placeholder: 'Max Mustermann',
+          required: true
+        },
+        {
+          id: 'unternehmen',
+          type: 'text',
+          label: 'Unternehmen / Organisation',
+          placeholder: 'Muster GmbH',
+          required: true
+        },
+        {
+          id: 'email',
+          type: 'email',
+          label: 'E-Mail Adresse',
+          placeholder: 'max@beispiel.de',
+          required: true
+        },
+        {
+          id: 'telefon',
+          type: 'tel',
+          label: 'Telefonnummer',
+          placeholder: '+49 123 456789',
+          required: true
+        },
+        {
+          id: 'erreichbarkeit',
+          type: 'time_picker',
+          label: 'Wann sind Sie am besten erreichbar?',
+          required: true,
+          times: ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00']
+        }
+      ],
+      privacy: {
+        required: true,
+        text: 'Ich habe die <a href="/datenschutz" target="_blank" rel="noopener">Datenschutzerklärung</a> gelesen und stimme zu, dass meine Daten zur Bearbeitung meiner Anfrage gespeichert und verarbeitet werden.'
+      }
+    }
+  ],
+
+  success: {
+    title: 'Vielen Dank für Ihre Anfrage!',
+    description: 'Wir haben Ihre Daten erhalten und melden uns schnellstmöglich bei Ihnen. Wir freuen uns auf die Zusammenarbeit!'
+  },
+
+  errors: {
+    requiredFields: 'Bitte füllen Sie alle Pflichtfelder aus.',
+    submission: 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.'
+  }
+};
+
+(function() {
+  const container = document.querySelector('.db-container');
+  const { branding, steps, formId, formName, postId, success, errors } = FORM_CONFIG;
+
+  let currentStep = 1;
+  const formData = { form_id: formId, form_name: formName, post_id: postId, _hp_field: '' };
+  if (postId) formData.post_id = postId;
+
+  const generateCSS = () => {
+    return `
+    <style>
+      .db-container {
+        --db-primary: ${branding.primary};
+        --db-primary-hover: ${branding.primaryHover};
+        --db-btn-text: ${branding.btnText};
+        --db-text: ${branding.text};
+        --db-text-muted: ${branding.textMuted};
+        --db-border: ${branding.border};
+        --db-bg: ${branding.bg};
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        box-sizing: border-box;
+      }
+      .db-container *, .db-container *::before, .db-container *::after { box-sizing: border-box; }
+      .db-hp-field { position: absolute; left: -9999px; opacity: 0; pointer-events: none; }
+      .db-timeline { display: flex; align-items: flex-start; justify-content: space-between; }
+      .db-timeline.hide { display: none; }
+      .db-timeline-step { display: flex; flex-direction: column; align-items: center; position: relative; flex: 1; }
+      .db-timeline-step:not(:last-child)::after { content: ''; position: absolute; top: 16px; left: calc(50% + 20px); width: calc(100% - 40px); height: 2px; background: var(--db-border); transition: background 0.3s ease; }
+      .db-timeline-step.completed:not(:last-child)::after { background: var(--db-primary); }
+      .db-timeline-circle { width: 32px; height: 32px; border-radius: 0; background: transparent; border: 2px solid var(--db-border); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; color: var(--db-text-muted); transition: all 0.3s ease; position: relative; z-index: 1; }
+      .db-timeline-step.active .db-timeline-circle { background: var(--db-primary); border-color: var(--db-primary); color: var(--db-btn-text); box-shadow: 0 0 0 4px rgba(237, 180, 42, 0.25); }
+      .db-timeline-step.completed .db-timeline-circle { background: var(--db-primary); border-color: var(--db-primary); color: var(--db-btn-text); }
+      .db-timeline-label { font-size: 12px; color: var(--db-text-muted); margin-top: 8px; font-weight: 500; transition: color 0.3s ease; }
+      .db-timeline-step.active .db-timeline-label { color: var(--db-primary); }
+      .db-timeline-step.completed .db-timeline-label { color: var(--db-text); }
+      .db-wrapper { padding: 20px 0 0 0; }
+      .db-step { display: none; animation: dbFadeIn 0.35s ease; }
+      .db-step.active { display: block; }
+      @keyframes dbFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+      .db-title { font-size: 24px; font-weight: 700; color: var(--db-text); margin: 0 0 10px 0; line-height: 1.3; text-align: center; }
+      .db-para { font-size: 15px; color: var(--db-text-muted); margin: 0 0 28px 0; line-height: 1.6; text-align: center; }
+      .db-options { display: grid; gap: 12px; }
+      .db-options.grid-2 { grid-template-columns: repeat(2, 1fr); }
+      .db-options.grid-1 { grid-template-columns: 1fr; }
+      @media (max-width: 540px) { .db-options.grid-2 { grid-template-columns: 1fr; } }
+      .db-option { display: flex; align-items: center; justify-content: center; padding: 16px 20px; background: var(--db-bg); border: 2px solid var(--db-border); border-radius: 0; font-size: 15px; font-weight: 500; color: var(--db-text); cursor: pointer; transition: all 0.2s ease; text-align: center; }
+      .db-option:hover { border-color: var(--db-primary); background: rgba(237, 180, 42, 0.1); }
+      .db-option.selected { border-color: var(--db-primary); background: var(--db-primary); color: var(--db-btn-text); }
+      .db-stars-wrap { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px; }
+      .db-stars { display: flex; gap: 2px; }
+      .db-star { width: 16px; height: 16px; color: var(--db-primary); }
+      .db-stars-text { font-size: 13px; color: var(--db-text-muted); font-weight: 500; }
+      .db-fields { display: flex; flex-direction: column; gap: 20px; }
+      .db-field { display: flex; flex-direction: column; gap: 6px; }
+      .db-label { font-size: 14px; font-weight: 600; color: var(--db-text-muted); }
+      .db-label .required { color: var(--db-primary); }
+      .db-input { padding: 14px 16px; border: 2px solid var(--db-border); border-radius: 0; font-size: 15px; font-family: inherit; color: var(--db-text); background: var(--db-bg); transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+      .db-input:focus { outline: none; border-color: var(--db-primary); box-shadow: 0 0 0 4px rgba(237, 180, 42, 0.15); }
+      .db-input::placeholder { color: rgba(255, 255, 255, 0.4); }
+      .db-time-picker { position: relative; }
+      .db-time-display { display: flex; align-items: center; gap: 8px; padding: 14px 16px; border: 2px solid var(--db-border); border-radius: 0; background: var(--db-bg); cursor: pointer; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+      .db-time-display:hover, .db-time-display.open { border-color: var(--db-primary); }
+      .db-time-display.open { box-shadow: 0 0 0 4px rgba(237, 180, 42, 0.15); }
+      .db-time-icon { width: 20px; height: 20px; color: var(--db-text-muted); }
+      .db-time-value { flex: 1; font-size: 15px; color: var(--db-text); }
+      .db-time-value.placeholder { color: rgba(255, 255, 255, 0.4); }
+      .db-time-dropdown { position: absolute; top: calc(100% + 8px); left: 0; right: 0; background: #000000; border: 2px solid var(--db-border); border-radius: 0; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5); padding: 12px; display: none; z-index: 100; }
+      .db-time-dropdown.open { display: block; animation: dbDropdown 0.2s ease; }
+      @keyframes dbDropdown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+      .db-time-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+      .db-time-option { padding: 10px 8px; text-align: center; font-size: 14px; font-weight: 500; color: var(--db-text); background: var(--db-bg); border: none; border-radius: 0; cursor: pointer; transition: all 0.15s ease; }
+      .db-time-option:hover { background: rgba(237, 180, 42, 0.2); color: var(--db-primary); }
+      .db-time-option.selected { background: var(--db-primary); color: var(--db-btn-text); }
+      .db-checkbox-wrap { display: flex; align-items: flex-start; gap: 12px; margin-top: 8px; }
+      .db-checkbox { width: 22px; height: 22px; min-width: 22px; border: 2px solid var(--db-border); border-radius: 0; background: var(--db-bg); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; margin-top: 2px; }
+      .db-checkbox:hover { border-color: var(--db-primary); }
+      .db-checkbox.checked { background: var(--db-primary); border-color: var(--db-primary); }
+      .db-checkbox svg { width: 14px; height: 14px; color: var(--db-btn-text); opacity: 0; transform: scale(0.5); transition: all 0.15s ease; }
+      .db-checkbox.checked svg { opacity: 1; transform: scale(1); }
+      .db-checkbox-label { font-size: 14px; color: var(--db-text-muted); line-height: 1.5; }
+      .db-checkbox-label a { color: var(--db-primary); text-decoration: none; }
+      .db-checkbox-label a:hover { text-decoration: underline; }
+      .db-nav { display: flex; gap: 12px; margin-top: 32px; }
+      .db-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 16px 24px; border-radius: 0; font-size: 15px; font-weight: 600; font-family: inherit; cursor: pointer; transition: all 0.2s ease; border: none; }
+      .db-btn-submit { background: var(--db-primary); color: var(--db-btn-text); }
+      .db-btn-submit:hover { background: var(--db-primary-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(237, 180, 42, 0.4); }
+      .db-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+      .db-spinner { width: 20px; height: 20px; border: 2px solid rgba(0, 56, 95, 0.3); border-top-color: var(--db-btn-text); border-radius: 50%; animation: dbSpin 0.8s linear infinite; }
+      @keyframes dbSpin { to { transform: rotate(360deg); } }
+      .db-success { text-align: center; padding: 20px 0; }
+      .db-success-icon { width: 72px; height: 72px; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; animation: dbPop 0.4s ease; }
+      @keyframes dbPop { 0% { transform: scale(0); } 70% { transform: scale(1.1); } 100% { transform: scale(1); } }
+      .db-success-icon svg { width: 64px; height: 64px; color: var(--db-primary); }
+      .db-error { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; padding: 12px 16px; border-radius: 0; font-size: 14px; margin-top: 16px; display: none; }
+      .db-error.show { display: block; }
+      @media (max-width: 768px) {
+        .db-timeline-label { font-size: 11px; }
+        .db-timeline-circle { width: 28px; height: 28px; font-size: 12px; }
+        .db-timeline-step:not(:last-child)::after { top: 14px; left: calc(50% + 16px); width: calc(100% - 32px); }
+        .db-stars-wrap { flex-direction: column; gap: 6px; }
+        .db-stars-text { text-align: center; }
+      }
+    </style>
+    `;
+  };
+
+  const generateTimeline = () => {
+    const timelineSteps = steps.map(step => `
+      <div class="db-timeline-step ${step.number === 1 ? 'active' : ''}" data-step="${step.number}">
+        <div class="db-timeline-circle">${step.number}</div>
+        <span class="db-timeline-label">${step.label}</span>
+      </div>
+    `).join('');
+
+    return `<div class="db-timeline" data-active="1">${timelineSteps}</div>`;
+  };
+
+  const generateOptionsStep = (step) => {
+    const optionButtons = step.options.map(opt => `
+      <button type="button" class="db-option" data-value="${opt}">${opt}</button>
+    `).join('');
+
+    return `
+      <div class="db-step ${step.number === 1 ? 'active' : ''}" data-step="${step.number}">
+        <h2 class="db-title">${step.title}</h2>
+        <p class="db-para">${step.description}</p>
+        <div class="db-options ${step.layout === 'grid-1' ? 'grid-1' : 'grid-2'}">
+          ${optionButtons}
+        </div>
+      </div>
+    `;
+  };
+
+  const generateFieldsStep = (step) => {
+    const starsHTML = step.stars?.show ? `
+      <div class="db-stars-wrap">
+        <div class="db-stars">
+          ${'<svg class="db-star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>'.repeat(5)}
+        </div>
+        <span class="db-stars-text">${step.stars.text}</span>
+      </div>
+    ` : '';
+
+    const fieldsHTML = step.fields.map(field => {
+      if (field.type === 'time_picker') {
+        const timeOptions = field.times.map(time =>
+          `<button type="button" class="db-time-option" data-time="${time}">${time}</button>`
+        ).join('');
+
+        return `
+          <div class="db-field">
+            <label class="db-label">${field.label} ${field.required ? '<span class="required">*</span>' : ''}</label>
+            <div class="db-time-picker" data-field-id="${field.id}">
+              <div class="db-time-display">
+                <svg class="db-time-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" stroke-width="2"/>
+                  <path stroke-width="2" stroke-linecap="round" d="M12 6v6l4 2"/>
+                </svg>
+                <span class="db-time-value placeholder">Uhrzeit wählen</span>
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </div>
+              <div class="db-time-dropdown">
+                <div class="db-time-grid">${timeOptions}</div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="db-field">
+          <label class="db-label">${field.label} ${field.required ? '<span class="required">*</span>' : ''}</label>
+          <input type="${field.type}" class="db-input" data-field-id="${field.id}" placeholder="${field.placeholder || ''}" ${field.required ? 'required' : ''}>
+        </div>
+      `;
+    }).join('');
+
+    const privacyHTML = step.privacy ? `
+      <div class="db-checkbox-wrap">
+        <div class="db-checkbox" id="db-privacy-checkbox">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+          </svg>
+        </div>
+        <span class="db-checkbox-label">${step.privacy.text}</span>
+      </div>
+    ` : '';
+
+    return `
+      <div class="db-step" data-step="${step.number}">
+        ${starsHTML}
+        <h2 class="db-title">${step.title}</h2>
+        <p class="db-para">${step.description}</p>
+        <div class="db-fields">${fieldsHTML}</div>
+        ${privacyHTML}
+        <div class="db-error" id="db-error">${errors.requiredFields}</div>
+        <div class="db-nav">
+          <button type="button" class="db-btn db-btn-submit" id="db-submit">Anfrage unverbindlich absenden</button>
+        </div>
+      </div>
+    `;
+  };
+
+  const generateSuccessStep = () => {
+    return `
+      <div class="db-step" data-step="${steps.length + 1}">
+        <div class="db-success">
+          <div class="db-success-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+            </svg>
+          </div>
+          <h2 class="db-title">${success.title}</h2>
+          <p class="db-para">${success.description}</p>
+        </div>
+      </div>
+    `;
+  };
+
+  const generateHTML = () => {
+    const stepsHTML = steps.map(step => {
+      return step.type === 'options' ? generateOptionsStep(step) : generateFieldsStep(step);
+    }).join('');
+
+    return `
+      ${generateCSS()}
+      ${generateTimeline()}
+      <input type="text" class="db-hp-field" id="db-hp-field" name="_hp_field" tabindex="-1" autocomplete="off">
+      <div class="db-wrapper">
+        ${stepsHTML}
+        ${generateSuccessStep()}
+      </div>
+    `;
+  };
+
+  container.innerHTML = generateHTML();
+
+  const wrapper = container.querySelector('.db-wrapper');
+  const stepElements = wrapper.querySelectorAll('.db-step');
+  const timeline = container.querySelector('.db-timeline');
+  const timelineSteps = container.querySelectorAll('.db-timeline-step');
+
+  function updateTimeline() {
+    timeline.dataset.active = currentStep;
+
+    if (currentStep === 4) {
+      timeline.classList.add('hide');
+    } else {
+      timeline.classList.remove('hide');
+    }
+
+    timelineSteps.forEach((step, i) => {
+      const stepNum = i + 1;
+      step.classList.remove('active', 'completed');
+      if (stepNum === currentStep) {
+        step.classList.add('active');
+      } else if (stepNum < currentStep) {
+        step.classList.add('completed');
+      }
+    });
+  }
+
+  function showStep(step) {
+    stepElements.forEach(s => s.classList.remove('active'));
+    const targetStep = wrapper.querySelector(`.db-step[data-step="${step}"]`);
+    if (targetStep) {
+      targetStep.classList.add('active');
+      currentStep = step;
+      updateTimeline();
+    }
+  }
+
+  wrapper.querySelectorAll('.db-option').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const step = this.closest('.db-step').dataset.step;
+      const stepConfig = steps.find(s => s.number === parseInt(step));
+      const options = this.closest('.db-options').querySelectorAll('.db-option');
+
+      options.forEach(o => o.classList.remove('selected'));
+      this.classList.add('selected');
+
+      formData[stepConfig.fieldId] = this.dataset.value;
+
+      setTimeout(() => showStep(parseInt(step) + 1), 200);
+    });
+  });
+
+  wrapper.querySelectorAll('.db-time-picker').forEach(timePicker => {
+    const timeDisplay = timePicker.querySelector('.db-time-display');
+    const timeDropdown = timePicker.querySelector('.db-time-dropdown');
+    const timeValue = timePicker.querySelector('.db-time-value');
+    const timeOptions = timePicker.querySelectorAll('.db-time-option');
+    const fieldId = timePicker.dataset.fieldId;
+
+    timeDisplay.addEventListener('click', function(e) {
+      e.stopPropagation();
+      timeDisplay.classList.toggle('open');
+      timeDropdown.classList.toggle('open');
+    });
+
+    timeOptions.forEach(option => {
+      option.addEventListener('click', function() {
+        timeOptions.forEach(o => o.classList.remove('selected'));
+        this.classList.add('selected');
+        timeValue.textContent = this.dataset.time + ' Uhr';
+        timeValue.classList.remove('placeholder');
+        formData[fieldId] = this.dataset.time;
+        timeDisplay.classList.remove('open');
+        timeDropdown.classList.remove('open');
+      });
+    });
+
+    document.addEventListener('click', function() {
+      timeDisplay.classList.remove('open');
+      timeDropdown.classList.remove('open');
+    });
+
+    timePicker.addEventListener('click', function(e) {
+      e.stopPropagation();
+    });
+  });
+
+  const checkbox = wrapper.querySelector('#db-privacy-checkbox');
+  if (checkbox) {
+    checkbox.addEventListener('click', function() {
+      this.classList.toggle('checked');
+      formData.datenschutz = this.classList.contains('checked');
+    });
+  }
+
+  const submitBtn = wrapper.querySelector('#db-submit');
+  const errorMsg = wrapper.querySelector('#db-error');
+
+  if (submitBtn) {
+    submitBtn.addEventListener('click', async function() {
+      const fieldsStep = steps.find(s => s.type === 'fields');
+
+      const hpField = document.getElementById('db-hp-field');
+      if (hpField) {
+        formData._hp_field = hpField.value;
+      }
+
+      fieldsStep.fields.forEach(field => {
+        if (field.type === 'time_picker') {
+          if (!formData[field.id]) {
+            formData[field.id] = '';
+          }
+        } else {
+          const input = wrapper.querySelector(`[data-field-id="${field.id}"]`);
+          if (input) {
+            formData[field.id] = input.value.trim();
+          }
+        }
+      });
+
+      const allFilled = fieldsStep.fields.every(field => {
+        if (!field.required) return true;
+        return formData[field.id] && formData[field.id] !== '';
+      });
+
+      if (fieldsStep.privacy?.required && !formData.datenschutz) {
+        errorMsg.classList.add('show');
+        return;
+      }
+
+      if (!allFilled) {
+        errorMsg.classList.add('show');
+        return;
+      }
+
+      errorMsg.classList.remove('show');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="db-spinner"></span> Wird gesendet...';
+
+      try {
+        const formDataToSend = new FormData();
+        formDataToSend.append('action', 'custom_form_submit');
+        formDataToSend.append('formData', JSON.stringify(formData));
+
+        const response = await fetch('/wp-admin/admin-ajax.php', {
+          method: 'POST',
+          body: formDataToSend
+        });
+
+        if (!response.ok) {
+          throw new Error('Server-Fehler: ' + response.status);
+        }
+
+        const result = await response.json();
+
+        if (result.success) {
+          showStep(steps.length + 1);
+          timeline.style.display = 'none';
+        } else {
+          throw new Error(result.data?.message || errors.submission);
+        }
+      } catch (error) {
+        console.error('Form submission error:', error);
+        errorMsg.textContent = error.message || errors.submission;
+        errorMsg.classList.add('show');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Anfrage unverbindlich absenden';
+      }
+    });
+  }
+})();
+
+});
+</script>
